@@ -15,7 +15,7 @@ export const router = createBrowserRouter([
         element: <MainPage />,
       },
       {
-        path: '/form-uncontrol',
+        path: '/form/uncontrol',
         element: <UncontrolFrom />,
       },
     ],

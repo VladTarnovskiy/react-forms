@@ -103,10 +103,11 @@
     font-size: 1.4rem;
     align-self: center;
     margin-top: 20px;
-    background-color: rgb(130, 132, 228);
+    background-color: #0d4092;
     border-radius: 8px;
     border: none;
     cursor: pointer;
+    color: white;
 
     &:active {
       transform: scale(0.97);

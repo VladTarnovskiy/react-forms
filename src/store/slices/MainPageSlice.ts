@@ -1,8 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
+export interface ICardItem {
+  name: string;
+  age: string;
+  email: string;
+  password: string;
+  passwordRep: string;
+  gender: string;
+  photo: string;
+  rules: boolean;
+}
+
 interface InitialState {
-  cardsData: Array;
+  cardsData: ICardItem[];
 }
 
 const initialState: InitialState = {
@@ -14,14 +25,13 @@ const cardsDataSlice = createSlice({
   initialState,
   reducers: {
     addCard(state, { payload }) {
-      state.cardsData = state.cardsData.push(payload);
+      state.cardsData = [...state.cardsData, payload];
     },
   },
 });
 
 export const { addCard } = cardsDataSlice.actions;
 
-export const selectSearchValue = (state: RootState) =>
-  state.cardsData.cardsData;
+export const selectCardsData = (state: RootState) => state.cardsData.cardsData;
 
 export default cardsDataSlice.reducer;

@@ -1,5 +1,8 @@
+import { boolean, number, object, string } from 'yup';
 import './uncontrolForm.scss';
-import React, { FC } from 'react';
+import React, { FC, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { ICardItem, addCard } from '@/store/slices/MainPageSlice';
 // import { FormCardType } from '../../types/types';
 
 // interface MyProps {
@@ -7,71 +10,70 @@ import React, { FC } from 'react';
 // }
 
 export const UncontrolFrom: FC = () => {
-  const formRef = React.createRef<HTMLFormElement>();
+  const dispatch = useDispatch();
+  const [formData, setFormData] = useState<ICardItem>();
 
-  const formMessageRef = React.createRef<HTMLDivElement>();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const nameRef = React.createRef<HTMLInputElement>();
+  const formMessageRef = useRef<HTMLDivElement>(null);
 
-  const birthdayRef = React.createRef<HTMLInputElement>();
+  const nameRef = useRef<HTMLInputElement>(null);
 
-  const countryRef = React.createRef<HTMLSelectElement>();
+  const ageRef = useRef<HTMLInputElement>(null);
 
-  const carRef = React.createRef<HTMLInputElement>();
+  const emailRef = useRef<HTMLInputElement>(null);
 
-  const motorcycleRef = React.createRef<HTMLInputElement>();
+  const passwordRef = useRef<HTMLInputElement>(null);
 
-  const bikeRef = React.createRef<HTMLInputElement>();
+  const passwordRepRef = useRef<HTMLInputElement>(null);
 
-  const maleRef = React.createRef<HTMLInputElement>();
+  const maleRef = useRef<HTMLInputElement>(null);
 
-  const femaleRef = React.createRef<HTMLInputElement>();
+  const femaleRef = useRef<HTMLInputElement>(null);
 
-  const fileRef = React.createRef<HTMLInputElement>();
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const rulesRef = React.createRef<HTMLInputElement>();
+  const rulesRef = useRef<HTMLInputElement>(null);
 
-  const nameRefMessage = React.createRef<HTMLDivElement>();
+  const nameRefMessage = useRef<HTMLDivElement>(null);
 
-  const birthdayRefMessage = React.createRef<HTMLDivElement>();
+  const ageRefMessage = useRef<HTMLDivElement>(null);
 
-  const countryRefMessage = React.createRef<HTMLDivElement>();
+  const emailRefMessage = useRef<HTMLDivElement>(null);
 
-  const genderRefMessage = React.createRef<HTMLDivElement>();
+  const genderRefMessage = useRef<HTMLDivElement>(null);
 
-  const fileRefMessage = React.createRef<HTMLDivElement>();
+  const fileRefMessage = useRef<HTMLDivElement>(null);
 
-  const rulesRefMessage = React.createRef<HTMLDivElement>();
+  const rulesRefMessage = useRef<HTMLDivElement>(null);
 
   const getFileLink = (fileObj: FileList) => {
     const file = fileObj ? window.URL.createObjectURL(fileObj[0]) : '';
     return file;
   };
 
-  const submitForm = (e: React.ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const setData = () => {
     // const { addCard } = props;
 
     const nameRefEl = nameRef.current ? nameRef.current?.value : '';
 
-    const birthdayRefEl = birthdayRef.current ? birthdayRef.current?.value : '';
+    const ageRefEl = ageRef.current ? ageRef.current?.value : '';
 
-    const countryRefEl = countryRef.current ? countryRef.current?.value : '';
+    const emailRefEl = emailRef.current ? emailRef.current?.value : '';
 
-    const carRefEl = carRef.current ? carRef.current?.checked : false;
+    const passwordRefEl = passwordRef.current ? passwordRef.current?.value : '';
 
-    const motorcycleRefEl = motorcycleRef.current
-      ? motorcycleRef.current?.checked
-      : false;
-
-    const bikeRefEl = bikeRef.current ? bikeRef.current?.checked : false;
+    const passwordRepRefEl = passwordRepRef.current
+      ? passwordRepRef.current?.value
+      : '';
 
     const maleRefEl = maleRef.current?.value;
 
     const femaleRefEl = femaleRef.current?.value;
 
     const fileRefEl = fileRef.current?.files;
-    const imgRef = getFileLink(fileRefEl!);
+    const imgRef = fileRefEl ? getFileLink(fileRefEl) : '';
+
     const rulesRefEl = rulesRef.current ? rulesRef.current?.checked : false;
 
     const sex = maleRef.current?.checked ? maleRefEl : femaleRefEl;
@@ -80,30 +82,67 @@ export const UncontrolFrom: FC = () => {
     formRef.current?.reset();
     const formData = {
       name: nameRefEl,
-      birthday: birthdayRefEl,
-      country: countryRefEl,
-      vehicle: {
-        car: carRefEl,
-        motorcycle: motorcycleRefEl,
-        bike: bikeRefEl,
-      },
+      age: ageRefEl,
+      email: emailRefEl,
+      password: passwordRefEl,
+      passwordRep: passwordRepRefEl,
       gender: sex!,
       photo: imgRef,
       rules: rulesRefEl,
     };
     // addCard(formData);
+    setFormData(formData);
+    dispatch(addCard(formData));
+    checkValidity();
+
     console.log(formData);
     setTimeout(() => {
       formMessageRef.current?.classList.remove('active');
     }, 3000);
   };
 
-  const checkValidity = () => {
+  const submitForm = async (e: React.ChangeEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // const { addCard } = props;
+  };
+
+  const checkValidity = async () => {
+    const schema = object().shape({
+      name: string().matches(/^[A-Z]/, 'First latter should be uppercase'),
+      age: number().positive('Should be positive'),
+      email: string().email('Not valid email'),
+      password: string().matches(
+        /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
+        'First latter should be uppercase'
+      ),
+      passwordRep: string().matches(
+        /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
+        'First latter should be uppercase'
+      ),
+      gender: boolean().oneOf([true], 'Choose gender'),
+      // photo: boolean().oneOf([true], 'Choose img'),
+      rules: boolean().oneOf([true], 'Accept rules'),
+    });
+
+    try {
+      await schema.validate(formData);
+    } catch (error) {
+      // if (typeof error === "string") {
+      //   // handle string error
+      // } else if (error instanceof Error) {
+      console.log(error);
+      // }
+    }
+    // const error = await schema.validate(formData);
+    // if (error) {
+    //   console.log(error.age);
+    // }
+
     const nameRefEl = nameRef.current;
 
-    const birthdayRefEl = birthdayRef.current;
+    const ageRefEl = ageRef.current;
 
-    const countryRefEl = countryRef.current;
+    const emailRefEl = emailRef.current;
 
     const maleRefEl = maleRef.current;
 
@@ -119,16 +158,16 @@ export const UncontrolFrom: FC = () => {
       nameRefMessage.current?.classList.remove('active');
     }
 
-    if (birthdayRefEl!.validity.valid === false) {
-      birthdayRefMessage.current?.classList.add('active');
+    if (ageRefEl!.validity.valid === false) {
+      ageRefMessage.current?.classList.add('active');
     } else {
-      birthdayRefMessage.current?.classList.remove('active');
+      ageRefMessage.current?.classList.remove('active');
     }
 
-    if (countryRefEl!.validity.valid === false) {
-      countryRefMessage.current?.classList.add('active');
+    if (emailRefEl!.validity.valid === false) {
+      emailRefMessage.current?.classList.add('active');
     } else {
-      countryRefMessage.current?.classList.remove('active');
+      emailRefMessage.current?.classList.remove('active');
     }
 
     if (
@@ -165,85 +204,82 @@ export const UncontrolFrom: FC = () => {
       </div>
       <div className="form__title">Personal data</div>
       <div className="input__item">
-        <div className="input__item-title">Name:</div>
+        <label htmlFor="name" className="input__item-title">
+          Name:
+        </label>
         <input
+          id="name"
           type="text"
           placeholder="Enter name"
-          className="form__name"
           name="name"
           ref={nameRef}
           pattern="[A-Z][a-z]*"
           minLength={3}
-          required
         />
       </div>
       <div className="form__error" ref={nameRefMessage}>
         The first name should start from capital letter, min length 3
       </div>
       <div className="input__item">
-        <div className="input__item-title">Birthday:</div>
+        <label htmlFor="age" className="input__item-title">
+          Age:
+        </label>
         <input
-          type="date"
-          placeholder="Enter date"
-          className="form__date"
-          name="birthday"
-          ref={birthdayRef}
-          required
+          type="text"
+          id="age"
+          placeholder="Enter age"
+          name="age"
+          ref={ageRef}
         />
       </div>
-      <div className="form__error" ref={birthdayRefMessage}>
-        Enter your birthday
+      <div className="form__error" ref={ageRefMessage}>
+        Enter your age
       </div>
       <div className="input__item">
-        <div className="input__item-title">Country:</div>
-        <select
-          name="country"
-          className="form__country"
-          required
-          ref={countryRef}
-        >
-          <option value="Belarus">Belarus</option>
-          <option value="Germany">Germany</option>
-          <option value="USA">USA</option>
-        </select>
+        <label htmlFor="email" className="input__item-title">
+          Email:
+        </label>
+        <input
+          type="email"
+          id="email"
+          placeholder="Enter email"
+          name="email"
+          ref={emailRef}
+        />
       </div>
-      <div className="form__error" ref={countryRefMessage}>
-        Choose your country
+      <div className="form__error" ref={ageRefMessage}>
+        Enter your email.
       </div>
       <div className="input__item">
-        <span className="input__item-title">Vehicle:</span>
-        <div className="form__vehicle">
-          <label htmlFor="car">
-            <input
-              type="checkbox"
-              id="car"
-              name="vehicle"
-              value="car"
-              ref={carRef}
-            />{' '}
-            Car
-          </label>
-          <label htmlFor="motorcycle">
-            <input
-              type="checkbox"
-              id="motorcycle"
-              name="vehicle"
-              value="motorcycle"
-              ref={motorcycleRef}
-            />{' '}
-            Motorcycle
-          </label>
-          <label htmlFor="bike">
-            <input
-              type="checkbox"
-              id="bike"
-              name="vehicle"
-              value="bike"
-              ref={bikeRef}
-            />{' '}
-            Bike
-          </label>
-        </div>
+        <label htmlFor="password" className="input__item-title">
+          Password:
+        </label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter password"
+          className="form__password"
+          name="password"
+          ref={passwordRef}
+        />
+      </div>
+      <div className="form__error" ref={ageRefMessage}>
+        Enter your password.
+      </div>
+      <div className="input__item">
+        <label htmlFor="repPassword" className="input__item-title">
+          Repeat password:
+        </label>
+        <input
+          type="password"
+          id="repPassword"
+          placeholder="Repeat password"
+          name="password"
+          ref={passwordRepRef}
+        />
+      </div>
+      <div className="form__error" ref={ageRefMessage}>
+        Enter your password.
       </div>
       <div className="input__item">
         <span className="input__item-title">Gender:</span>
@@ -254,7 +290,6 @@ export const UncontrolFrom: FC = () => {
               id="male"
               name="gender"
               value="male"
-              required
               ref={maleRef}
             />{' '}
             male
@@ -265,7 +300,6 @@ export const UncontrolFrom: FC = () => {
               id="female"
               name="gender"
               value="female"
-              required
               ref={femaleRef}
             />{' '}
             female
@@ -276,13 +310,15 @@ export const UncontrolFrom: FC = () => {
         Choose gender
       </div>
       <div className="input__item">
-        <span className="input__item-title">Your photo:</span>
+        <label htmlFor="file" className="input__item-title">
+          Your photo:
+        </label>
         <input
           type="file"
+          id="file"
           placeholder="Choose file"
           className="form__file"
           accept="image/*"
-          required
           ref={fileRef}
         />
       </div>
@@ -296,7 +332,6 @@ export const UncontrolFrom: FC = () => {
             id="rules"
             name="rules"
             value="motorcycle"
-            required
             ref={rulesRef}
           />{' '}
           I agree to the processing of personal data
@@ -305,7 +340,7 @@ export const UncontrolFrom: FC = () => {
       <div className="form__error" ref={rulesRefMessage}>
         To continue agree to the processing of your data
       </div>
-      <button type="submit" className="submit__button" onClick={checkValidity}>
+      <button type="submit" className="submit__button" onClick={setData}>
         Submit
       </button>
     </form>
