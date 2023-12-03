@@ -82,13 +82,13 @@ export const UncontrolFrom: FC = () => {
     formRef.current?.reset();
     const formData = {
       name: nameRefEl,
-      age: ageRefEl,
+      age: Number(ageRefEl),
       email: emailRefEl,
       password: passwordRefEl,
       passwordRep: passwordRepRefEl,
       gender: sex!,
       photo: imgRef,
-      rules: rulesRefEl,
+      rules: String(rulesRefEl),
     };
     // addCard(formData);
     setFormData(formData);
@@ -108,20 +108,26 @@ export const UncontrolFrom: FC = () => {
 
   const checkValidity = async () => {
     const schema = object().shape({
-      name: string().matches(/^[A-Z]/, 'First latter should be uppercase'),
-      age: number().positive('Should be positive'),
-      email: string().email('Not valid email'),
-      password: string().matches(
-        /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
-        'First latter should be uppercase'
-      ),
-      passwordRep: string().matches(
-        /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
-        'First latter should be uppercase'
-      ),
-      gender: boolean().oneOf([true], 'Choose gender'),
-      // photo: boolean().oneOf([true], 'Choose img'),
-      rules: boolean().oneOf([true], 'Accept rules'),
+      name: string()
+        .required()
+        .matches(/^[A-Z]/, 'First latter should be uppercase'),
+      age: number().required().positive('Should be positive'),
+      email: string().required().email('Not valid email'),
+      password: string()
+        .required()
+        .matches(
+          /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
+          'First latter should be uppercase'
+        ),
+      passwordRep: string()
+        .required()
+        .matches(
+          /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
+          'First latter should be uppercase'
+        ),
+      gender: string().required(),
+      photo: string().required(),
+      rules: boolean().required(),
     });
 
     try {

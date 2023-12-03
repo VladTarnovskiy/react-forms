@@ -3,13 +3,13 @@ import { RootState } from '../store';
 
 export interface ICardItem {
   name: string;
-  age: string;
+  age: number;
   email: string;
   password: string;
   passwordRep: string;
   gender: string;
   photo: string;
-  rules: boolean;
+  rules: string;
 }
 
 interface InitialState {

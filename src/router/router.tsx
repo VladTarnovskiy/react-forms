@@ -4,6 +4,7 @@ import { NotFoundPage } from '../pages/NotFoundPage/NotFoundPage';
 import { RouterError } from '../components/RouterError/RouterError';
 import { App } from '../App';
 import { UncontrolFrom } from '@/pages/UncontrolForm/UncontrolForm';
+import { ControlFrom } from '@/pages/ControlForm/ControlForm';
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ export const router = createBrowserRouter([
       {
         path: '/form/uncontrol',
         element: <UncontrolFrom />,
+      },
+      {
+        path: '/form/control',
+        element: <ControlFrom />,
       },
     ],
   },
