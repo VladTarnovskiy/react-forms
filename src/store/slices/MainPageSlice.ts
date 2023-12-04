@@ -4,10 +4,12 @@ import { ICardItemForm } from '@/types/types';
 
 interface InitialState {
   cardsData: ICardItemForm[];
+  countries: string[];
 }
 
 const initialState: InitialState = {
   cardsData: [],
+  countries: ['USA', 'Belarus', 'China', 'India'],
 };
 
 const cardsDataSlice = createSlice({
@@ -23,5 +25,6 @@ const cardsDataSlice = createSlice({
 export const { addCard } = cardsDataSlice.actions;
 
 export const selectCardsData = (state: RootState) => state.cardsData.cardsData;
+export const selectCountries = (state: RootState) => state.cardsData.countries;
 
 export default cardsDataSlice.reducer;

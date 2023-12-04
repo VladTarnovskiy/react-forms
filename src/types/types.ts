@@ -1,5 +1,6 @@
 export interface ICardItemForm {
   name: string;
+  country: string;
   age: number;
   email: string;
   password: string;
@@ -11,6 +12,7 @@ export interface ICardItemForm {
 
 export interface ICardItem {
   name: string;
+  country: string;
   age: number;
   email: string;
   password: string;

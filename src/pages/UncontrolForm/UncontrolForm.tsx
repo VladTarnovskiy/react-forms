@@ -1,10 +1,12 @@
 import './uncontrolForm.scss';
 import React, { FC, useRef } from 'react';
-import { useDispatch } from 'react-redux';
-import { addCard } from '@/store/slices/MainPageSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addCard, selectCountries } from '@/store/slices/MainPageSlice';
 import { useNavigate } from 'react-router-dom';
 
 export const UncontrolFrom: FC = () => {
+  const countries = useSelector(selectCountries);
+
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -14,6 +16,8 @@ export const UncontrolFrom: FC = () => {
   const formMessageRef = useRef<HTMLDivElement>(null);
 
   const nameRef = useRef<HTMLInputElement>(null);
+
+  const countryRef = useRef<HTMLSelectElement>(null);
 
   const ageRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +43,8 @@ export const UncontrolFrom: FC = () => {
 
   const passwordRefMessage = useRef<HTMLDivElement>(null);
 
+  const countryRefMessage = useRef<HTMLDivElement>(null);
+
   const passwordRepRefMessage = useRef<HTMLDivElement>(null);
 
   const genderRefMessage = useRef<HTMLDivElement>(null);
@@ -61,6 +67,8 @@ export const UncontrolFrom: FC = () => {
     const emailRefEl = emailRef.current ? emailRef.current?.value : '';
 
     const passwordRefEl = passwordRef.current ? passwordRef.current?.value : '';
+
+    const countryRefEl = countryRef.current ? countryRef.current?.value : '';
 
     const passwordRepRefEl = passwordRepRef.current
       ? passwordRepRef.current?.value
@@ -85,6 +93,7 @@ export const UncontrolFrom: FC = () => {
       email: emailRefEl,
       password: passwordRefEl,
       passwordRep: passwordRepRefEl,
+      country: countryRefEl,
       gender: sex!,
       photo: imgRef,
       rules: rulesRefEl,
@@ -106,6 +115,8 @@ export const UncontrolFrom: FC = () => {
     const passwordRefEl = passwordRef.current;
 
     const passwordRepRefEl = passwordRepRef.current;
+
+    const countryRefEl = countryRef.current;
 
     const maleRefEl = maleRef.current;
 
@@ -143,6 +154,12 @@ export const UncontrolFrom: FC = () => {
       passwordRepRefMessage.current?.classList.add('active');
     } else {
       passwordRepRefMessage.current?.classList.remove('active');
+    }
+
+    if (countryRefEl!.validity.valid === false) {
+      countryRefMessage.current?.classList.add('active');
+    } else {
+      countryRefMessage.current?.classList.remove('active');
     }
 
     if (
@@ -194,7 +211,7 @@ export const UncontrolFrom: FC = () => {
         />
       </div>
       <div className="form__error" ref={nameRefMessage}>
-        The first name should start from capital letter, min length 3
+        the first name should start from capital letter, min length 3
       </div>
       <div className="input__item">
         <label htmlFor="age" className="input__item-title">
@@ -210,7 +227,7 @@ export const UncontrolFrom: FC = () => {
         />
       </div>
       <div className="form__error" ref={ageRefMessage}>
-        Enter your age
+        enter your age
       </div>
       <div className="input__item">
         <label htmlFor="email" className="input__item-title">
@@ -226,7 +243,7 @@ export const UncontrolFrom: FC = () => {
         />
       </div>
       <div className="form__error" ref={emailRefMessage}>
-        Enter your email.
+        enter your email
       </div>
       <div className="input__item">
         <label htmlFor="password" className="input__item-title">
@@ -244,7 +261,7 @@ export const UncontrolFrom: FC = () => {
         />
       </div>
       <div className="form__error" ref={passwordRefMessage}>
-        Enter your password.
+        passwords should match
       </div>
       <div className="input__item">
         <label htmlFor="repPassword" className="input__item-title">
@@ -261,7 +278,27 @@ export const UncontrolFrom: FC = () => {
         />
       </div>
       <div className="form__error" ref={passwordRepRefMessage}>
-        Enter your password.
+        enter your password
+      </div>
+      <div className="input__item">
+        <label className="input__item-title" htmlFor="country">
+          Country:
+        </label>
+        <select
+          className="form__country"
+          ref={countryRef}
+          id="country"
+          defaultValue={'Belarus'}
+        >
+          {countries.map((item) => (
+            <option value={item} key={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="form__error" ref={countryRefMessage}>
+        choose country
       </div>
       <div className="input__item">
         <span className="input__item-title">Gender:</span>
@@ -291,7 +328,7 @@ export const UncontrolFrom: FC = () => {
         </div>
       </div>
       <div className="form__error" ref={genderRefMessage}>
-        Choose gender
+        choose gender
       </div>
       <div className="input__item">
         <label htmlFor="file" className="input__item-title">
@@ -308,7 +345,7 @@ export const UncontrolFrom: FC = () => {
         />
       </div>
       <div className="form__error" ref={fileRefMessage}>
-        Choose your photo
+        choose your photo
       </div>
       <div className="input__item">
         <label htmlFor="rules">
@@ -324,7 +361,7 @@ export const UncontrolFrom: FC = () => {
         </label>
       </div>
       <div className="form__error" ref={rulesRefMessage}>
-        To continue agree to the processing of your data
+        to continue agree to the processing of your data
       </div>
       <button type="submit" className="submit__button" onClick={checkValidity}>
         Submit

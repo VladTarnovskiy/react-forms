@@ -1,7 +1,7 @@
 import './controlForm.scss';
 import { FC, useRef } from 'react';
-import { useDispatch } from 'react-redux';
-import { addCard } from '@/store/slices/MainPageSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addCard, selectCountries } from '@/store/slices/MainPageSlice';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ export const ControlFrom: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const formMessageRef = useRef<HTMLDivElement>(null);
+  const countries = useSelector(selectCountries);
 
   const getFileLink = (fileObj: FileList) => {
     const file = fileObj ? window.URL.createObjectURL(fileObj[0]) : '';
@@ -121,6 +122,27 @@ export const ControlFrom: FC = () => {
       </div>
       <div className="control-form__error">
         {errors.passwordRep && <p>{errors.passwordRep.message}</p>}
+      </div>
+      <div className="input__item">
+        <label className="input__item-title" htmlFor="country">
+          Country:
+        </label>
+        <select
+          className="form__country"
+          {...register('country', {
+            required: 'Choose country!',
+          })}
+          id="country"
+        >
+          {countries.map((item) => (
+            <option value={item} key={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="control-form__error">
+        {errors.country && <p>{errors.country.message}</p>}
       </div>
       <div className="input__item">
         <span className="input__item-title">Gender:</span>

@@ -22,6 +22,7 @@ export const schema = object().shape({
     .required()
     .oneOf([ref('password')], "passwords don't match"),
   gender: string().required(),
+  country: string().required(),
   photo: mixed<FileList>().test(
     'Image is required',
     (value) => !!(value as FileList)[0]

@@ -6,7 +6,7 @@ interface MyProps {
 }
 
 export const Card: FC<MyProps> = ({ cardData }) => {
-  const { age, email, gender, name, password, photo } = cardData;
+  const { age, email, gender, name, password, photo, country } = cardData;
 
   return (
     <div
@@ -31,6 +31,10 @@ export const Card: FC<MyProps> = ({ cardData }) => {
         <div className="flex justify-between des__item flex-wrap">
           <div className="des__title mr-1">Password:</div>
           <div className="des__info">{password}</div>
+        </div>
+        <div className="flex justify-between des__item flex-wrap">
+          <div className="des__title mr-1">Country:</div>
+          <div className="des__info">{country}</div>
         </div>
         <div className="flex justify-between des__item flex-wrap">
           <div className="des__title mr-1">Gender:</div>

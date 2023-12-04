@@ -79,7 +79,8 @@
     cursor: pointer;
   }
 
-  input {
+  input,
+  select {
     border: 1px solid black;
     outline: none;
     border-radius: 3px;
