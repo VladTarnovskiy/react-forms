@@ -1,8 +1,8 @@
-import { boolean, number, object, string } from 'yup';
+import { boolean, mixed, number, object, ref, string } from 'yup';
 import './uncontrolForm.scss';
 import React, { FC, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { ICardItem, addCard } from '@/store/slices/MainPageSlice';
+import { ICardItemForm, addCard } from '@/store/slices/MainPageSlice';
 // import { FormCardType } from '../../types/types';
 
 // interface MyProps {
@@ -11,7 +11,7 @@ import { ICardItem, addCard } from '@/store/slices/MainPageSlice';
 
 export const UncontrolFrom: FC = () => {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState<ICardItem>();
+  const [formData, setFormData] = useState<ICardItemForm>();
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -88,7 +88,7 @@ export const UncontrolFrom: FC = () => {
       passwordRep: passwordRepRefEl,
       gender: sex!,
       photo: imgRef,
-      rules: String(rulesRefEl),
+      rules: rulesRefEl,
     };
     // addCard(formData);
     setFormData(formData);
@@ -110,23 +110,26 @@ export const UncontrolFrom: FC = () => {
     const schema = object().shape({
       name: string()
         .required()
-        .matches(/^[A-Z]/, 'First latter should be uppercase'),
-      age: number().required().positive('Should be positive'),
-      email: string().required().email('Not valid email'),
+        .matches(/^[A-Z]/, 'first latter should be uppercase'),
+      age: number()
+        .transform((origValue) => {
+          const value = Number(origValue);
+          return Number.isNaN(value) ? null : value;
+        })
+        .required()
+        .positive('should be positive'),
+      email: string().required().email('not valid email'),
       password: string()
         .required()
-        .matches(
-          /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
-          'First latter should be uppercase'
-        ),
+        .matches(/[a-z]/, 'Password should contains lowercase letter')
+        .matches(/[A-Z]/, 'Password should contains uppercase letter')
+        .matches(/[0-9]/, 'Password should contains number')
+        .matches(/[!@#$&*]/, 'Password should contains one special character'),
       passwordRep: string()
         .required()
-        .matches(
-          /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
-          'First latter should be uppercase'
-        ),
+        .oneOf([ref('password')], "password doesn't match"),
       gender: string().required(),
-      photo: string().required(),
+      photo: mixed<FileList>().required(),
       rules: boolean().required(),
     });
 

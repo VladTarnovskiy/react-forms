@@ -1,63 +1,78 @@
-import { number, object, string } from 'yup';
+import { boolean, mixed, number, object, ref, string } from 'yup';
 import './controlForm.scss';
 import { FC, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { ICardItem, addCard } from '@/store/slices/MainPageSlice';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useNavigate } from 'react-router-dom';
 
 export const ControlFrom: FC = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const formMessageRef = useRef<HTMLDivElement>(null);
+
+  const getFileLink = (fileObj: FileList) => {
+    const file = fileObj ? window.URL.createObjectURL(fileObj[0]) : '';
+    return file;
+  };
 
   const schema = object().shape({
     name: string()
       .required()
-      .matches(/^[A-Z]/, 'First latter should be uppercase'),
-    age: number().required().positive('Should be positive'),
-    email: string().required().email('Not valid email'),
+      .matches(/^[A-Z]/, 'first latter should be uppercase'),
+    age: number()
+      .transform((origValue) => {
+        const value = Number(origValue);
+        return Number.isNaN(value) ? null : value;
+      })
+      .required()
+      .positive('should be positive'),
+    email: string().required().email('not valid email'),
     password: string()
       .required()
-      .matches(
-        /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
-        'First latter should be uppercase'
-      ),
+      .matches(/[a-z]/, 'Password should contains lowercase letter')
+      .matches(/[A-Z]/, 'Password should contains uppercase letter')
+      .matches(/[0-9]/, 'Password should contains number')
+      .matches(/[!@#$&*]/, 'Password should contains one special character'),
     passwordRep: string()
       .required()
-      .matches(
-        /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$&*])(?=.*[0-9]).{8}$/,
-        'First latter should be uppercase'
-      ).when(['password'], (password) => {
-        if (password) {
-            return Yup.date()
-                .min(start_date, 'End Date must be after Start Date')
-                .typeError('End Date is required')
-        }
-    }),,
+      .oneOf([ref('password')], "password doesn't match"),
     gender: string().required(),
-    photo: string().required(),
-    rules: string().required(),
+    photo: mixed<FileList>().test(
+      'File presence',
+      'Image is required',
+      (value) => !!(value as FileList)[0]
+    ),
+    rules: boolean().oneOf([true], 'This field is required'),
   });
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<ICardItem>({ resolver: yupResolver(schema) });
+  } = useForm<ICardItem>({ resolver: yupResolver(schema), mode: 'all' });
 
   const onSubmit = (data: ICardItem) => {
+    const formData = {
+      ...data,
+      photo: getFileLink(data.photo!),
+    };
     formMessageRef.current?.classList.add('active');
     setTimeout(() => {
       formMessageRef.current?.classList.remove('active');
+      reset();
+      navigate('/');
     }, 3000);
-    dispatch(addCard(data));
+    dispatch(addCard(formData));
 
-    console.log(data);
+    console.log(formData);
   };
 
   return (
     <form
-      className="form"
+      className="control-form"
       name="PersonalDataForm"
       onSubmit={handleSubmit(onSubmit)}
     >
@@ -76,7 +91,7 @@ export const ControlFrom: FC = () => {
           {...register('name')}
         />
       </div>
-      <div className="form__error">
+      <div className="control-form__error">
         {errors.name && <p>{errors.name.message}</p>}
       </div>
       <div className="input__item">
@@ -169,9 +184,10 @@ export const ControlFrom: FC = () => {
         <input
           type="file"
           id="file"
+          accept="image/png, image/jpeg"
           placeholder="Choose file"
           className="form__file"
-          accept="image/*"
+          {...register('photo')}
         />
       </div>
       <div className="control-form__error">
@@ -179,13 +195,8 @@ export const ControlFrom: FC = () => {
       </div>
       <div className="input__item">
         <label htmlFor="rules">
-          <input
-            type="checkbox"
-            id="rules"
-            {...register('rules')}
-            value="rules"
-          />
-          I agree to the processing of personal data
+          <input type="checkbox" id="rules" {...register('rules')} />I agree to
+          the processing of personal data
         </label>
       </div>
       <div className="control-form__error">

@@ -1,4 +1,4 @@
-.form {
+.control-form {
   display: flex;
   flex-direction: column;
   color: #000000;
@@ -82,6 +82,8 @@
   input {
     border: 1px solid black;
     outline: none;
+    border-radius: 3px;
+    padding: 2px;
     font-size: 1.4rem;
   }
 
