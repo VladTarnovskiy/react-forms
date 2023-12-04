@@ -1,11 +1,12 @@
-import { boolean, mixed, number, object, ref, string } from 'yup';
 import './controlForm.scss';
 import { FC, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { ICardItem, addCard } from '@/store/slices/MainPageSlice';
+import { addCard } from '@/store/slices/MainPageSlice';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
+import { schema } from '@/utils/schemaValidation';
+import { ICardItem } from '@/types/types';
 
 export const ControlFrom: FC = () => {
   const dispatch = useDispatch();
@@ -16,36 +17,6 @@ export const ControlFrom: FC = () => {
     const file = fileObj ? window.URL.createObjectURL(fileObj[0]) : '';
     return file;
   };
-
-  const schema = object().shape({
-    name: string()
-      .required()
-      .matches(/^[A-Z]/, 'first latter should be uppercase'),
-    age: number()
-      .transform((origValue) => {
-        const value = Number(origValue);
-        return Number.isNaN(value) ? null : value;
-      })
-      .required()
-      .positive('should be positive'),
-    email: string().required().email('not valid email'),
-    password: string()
-      .required()
-      .matches(/[a-z]/, 'Password should contains lowercase letter')
-      .matches(/[A-Z]/, 'Password should contains uppercase letter')
-      .matches(/[0-9]/, 'Password should contains number')
-      .matches(/[!@#$&*]/, 'Password should contains one special character'),
-    passwordRep: string()
-      .required()
-      .oneOf([ref('password')], "password doesn't match"),
-    gender: string().required(),
-    photo: mixed<FileList>().test(
-      'File presence',
-      'Image is required',
-      (value) => !!(value as FileList)[0]
-    ),
-    rules: boolean().oneOf([true], 'This field is required'),
-  });
 
   const {
     register,
@@ -66,8 +37,6 @@ export const ControlFrom: FC = () => {
       navigate('/');
     }, 3000);
     dispatch(addCard(formData));
-
-    console.log(formData);
   };
 
   return (
@@ -131,6 +100,7 @@ export const ControlFrom: FC = () => {
           id="password"
           placeholder="Enter password"
           className="form__password"
+          autoComplete="off"
           {...register('password')}
         />
       </div>
@@ -145,11 +115,12 @@ export const ControlFrom: FC = () => {
           type="password"
           id="repPassword"
           placeholder="Repeat password"
+          autoComplete="off"
           {...register('passwordRep')}
         />
       </div>
       <div className="control-form__error">
-        {errors.password && <p>{errors.password.message}</p>}
+        {errors.passwordRep && <p>{errors.passwordRep.message}</p>}
       </div>
       <div className="input__item">
         <span className="input__item-title">Gender:</span>

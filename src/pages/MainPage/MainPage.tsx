@@ -11,9 +11,11 @@ export const MainPage: FC = () => {
       <div className="content flex justify-around w-full">
         <div className="content__list flex-grow">
           <div className="cards__container p-5">
-            {cards.map((card) => (
-              <Card cardData={card} key={card.password} />
-            ))}
+            {cards.length ? (
+              cards.map((card) => <Card cardData={card} key={card.password} />)
+            ) : (
+              <div className="mt-16 text-2xl">No Cards.</div>
+            )}
           </div>
         </div>
       </div>

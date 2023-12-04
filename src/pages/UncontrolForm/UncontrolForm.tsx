@@ -1,17 +1,13 @@
-import { boolean, mixed, number, object, ref, string } from 'yup';
 import './uncontrolForm.scss';
-import React, { FC, useRef, useState } from 'react';
+import React, { FC, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { ICardItemForm, addCard } from '@/store/slices/MainPageSlice';
-// import { FormCardType } from '../../types/types';
-
-// interface MyProps {
-//   addCard: (card: FormCardType) => void;
-// }
+import { addCard } from '@/store/slices/MainPageSlice';
+import { useNavigate } from 'react-router-dom';
 
 export const UncontrolFrom: FC = () => {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState<ICardItemForm>();
+
+  const navigate = useNavigate();
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -41,6 +37,10 @@ export const UncontrolFrom: FC = () => {
 
   const emailRefMessage = useRef<HTMLDivElement>(null);
 
+  const passwordRefMessage = useRef<HTMLDivElement>(null);
+
+  const passwordRepRefMessage = useRef<HTMLDivElement>(null);
+
   const genderRefMessage = useRef<HTMLDivElement>(null);
 
   const fileRefMessage = useRef<HTMLDivElement>(null);
@@ -52,9 +52,8 @@ export const UncontrolFrom: FC = () => {
     return file;
   };
 
-  const setData = () => {
-    // const { addCard } = props;
-
+  const submitForm = async (e: React.ChangeEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const nameRefEl = nameRef.current ? nameRef.current?.value : '';
 
     const ageRefEl = ageRef.current ? ageRef.current?.value : '';
@@ -90,68 +89,23 @@ export const UncontrolFrom: FC = () => {
       photo: imgRef,
       rules: rulesRefEl,
     };
-    // addCard(formData);
-    setFormData(formData);
     dispatch(addCard(formData));
-    checkValidity();
-
-    console.log(formData);
     setTimeout(() => {
       formMessageRef.current?.classList.remove('active');
+      navigate('/');
     }, 3000);
   };
 
-  const submitForm = async (e: React.ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // const { addCard } = props;
-  };
-
-  const checkValidity = async () => {
-    const schema = object().shape({
-      name: string()
-        .required()
-        .matches(/^[A-Z]/, 'first latter should be uppercase'),
-      age: number()
-        .transform((origValue) => {
-          const value = Number(origValue);
-          return Number.isNaN(value) ? null : value;
-        })
-        .required()
-        .positive('should be positive'),
-      email: string().required().email('not valid email'),
-      password: string()
-        .required()
-        .matches(/[a-z]/, 'Password should contains lowercase letter')
-        .matches(/[A-Z]/, 'Password should contains uppercase letter')
-        .matches(/[0-9]/, 'Password should contains number')
-        .matches(/[!@#$&*]/, 'Password should contains one special character'),
-      passwordRep: string()
-        .required()
-        .oneOf([ref('password')], "password doesn't match"),
-      gender: string().required(),
-      photo: mixed<FileList>().required(),
-      rules: boolean().required(),
-    });
-
-    try {
-      await schema.validate(formData);
-    } catch (error) {
-      // if (typeof error === "string") {
-      //   // handle string error
-      // } else if (error instanceof Error) {
-      console.log(error);
-      // }
-    }
-    // const error = await schema.validate(formData);
-    // if (error) {
-    //   console.log(error.age);
-    // }
-
+  const checkValidity = () => {
     const nameRefEl = nameRef.current;
 
     const ageRefEl = ageRef.current;
 
     const emailRefEl = emailRef.current;
+
+    const passwordRefEl = passwordRef.current;
+
+    const passwordRepRefEl = passwordRepRef.current;
 
     const maleRefEl = maleRef.current;
 
@@ -177,6 +131,18 @@ export const UncontrolFrom: FC = () => {
       emailRefMessage.current?.classList.add('active');
     } else {
       emailRefMessage.current?.classList.remove('active');
+    }
+
+    if (passwordRefEl!.validity.valid === false) {
+      passwordRefMessage.current?.classList.add('active');
+    } else {
+      passwordRefMessage.current?.classList.remove('active');
+    }
+
+    if (passwordRepRefEl!.validity.valid === false) {
+      passwordRepRefMessage.current?.classList.add('active');
+    } else {
+      passwordRepRefMessage.current?.classList.remove('active');
     }
 
     if (
@@ -223,6 +189,7 @@ export const UncontrolFrom: FC = () => {
           name="name"
           ref={nameRef}
           pattern="[A-Z][a-z]*"
+          required
           minLength={3}
         />
       </div>
@@ -234,10 +201,11 @@ export const UncontrolFrom: FC = () => {
           Age:
         </label>
         <input
-          type="text"
+          type="number"
           id="age"
           placeholder="Enter age"
           name="age"
+          required
           ref={ageRef}
         />
       </div>
@@ -253,10 +221,11 @@ export const UncontrolFrom: FC = () => {
           id="email"
           placeholder="Enter email"
           name="email"
+          required
           ref={emailRef}
         />
       </div>
-      <div className="form__error" ref={ageRefMessage}>
+      <div className="form__error" ref={emailRefMessage}>
         Enter your email.
       </div>
       <div className="input__item">
@@ -269,10 +238,12 @@ export const UncontrolFrom: FC = () => {
           placeholder="Enter password"
           className="form__password"
           name="password"
+          autoComplete="off"
+          required
           ref={passwordRef}
         />
       </div>
-      <div className="form__error" ref={ageRefMessage}>
+      <div className="form__error" ref={passwordRefMessage}>
         Enter your password.
       </div>
       <div className="input__item">
@@ -284,10 +255,12 @@ export const UncontrolFrom: FC = () => {
           id="repPassword"
           placeholder="Repeat password"
           name="password"
+          autoComplete="off"
+          required
           ref={passwordRepRef}
         />
       </div>
-      <div className="form__error" ref={ageRefMessage}>
+      <div className="form__error" ref={passwordRepRefMessage}>
         Enter your password.
       </div>
       <div className="input__item">
@@ -299,6 +272,7 @@ export const UncontrolFrom: FC = () => {
               id="male"
               name="gender"
               value="male"
+              required
               ref={maleRef}
             />{' '}
             male
@@ -309,6 +283,7 @@ export const UncontrolFrom: FC = () => {
               id="female"
               name="gender"
               value="female"
+              required
               ref={femaleRef}
             />{' '}
             female
@@ -327,6 +302,7 @@ export const UncontrolFrom: FC = () => {
           id="file"
           placeholder="Choose file"
           className="form__file"
+          required
           accept="image/*"
           ref={fileRef}
         />
@@ -340,6 +316,7 @@ export const UncontrolFrom: FC = () => {
             type="checkbox"
             id="rules"
             name="rules"
+            required
             value="motorcycle"
             ref={rulesRef}
           />{' '}
@@ -349,7 +326,7 @@ export const UncontrolFrom: FC = () => {
       <div className="form__error" ref={rulesRefMessage}>
         To continue agree to the processing of your data
       </div>
-      <button type="submit" className="submit__button" onClick={setData}>
+      <button type="submit" className="submit__button" onClick={checkValidity}>
         Submit
       </button>
     </form>
