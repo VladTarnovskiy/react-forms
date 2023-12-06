@@ -6,14 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import { schema } from '@/utils/schemaValidation';
 import { ValidationError } from 'yup';
 import { getFileLink } from '@/utils/fileLink';
-
-export type ErrorObject = {
-  [field: string]: string[];
-};
+import { IError, getErrorObject } from '@/utils/errorObject';
 
 export const UncontrolFrom: FC = () => {
   const countries = useSelector(selectCountries);
-  const [validationErrors, setValidationErrors] = useState<ErrorObject>({});
+  const [validationErrors, setValidationErrors] = useState<IError>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const formRef = useRef<HTMLFormElement>(null);
@@ -28,20 +25,6 @@ export const UncontrolFrom: FC = () => {
   const femaleRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const rulesRef = useRef<HTMLInputElement>(null);
-
-  const getErrorObject = (err: ValidationError): ErrorObject => {
-    const object: ErrorObject = {};
-    err.inner.forEach((error) => {
-      if (error.path !== undefined) {
-        if (object[error.path] !== undefined) {
-          object[error.path].push(error.errors[0]);
-        } else {
-          object[error.path] = error.errors;
-        }
-      }
-    });
-    return object;
-  };
 
   const submitForm = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -101,10 +84,7 @@ export const UncontrolFrom: FC = () => {
       className="form"
       name="PersonalDataForm"
       ref={formRef}
-      onSubmit={(e) => {
-        e.preventDefault();
-        submitForm(e);
-      }}
+      onSubmit={submitForm}
     >
       <div className="form__saved" ref={formMessageRef}>
         <div className="form__saved-message">Data saved!</div>
