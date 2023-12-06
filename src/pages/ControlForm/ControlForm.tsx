@@ -7,17 +7,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
 import { schema } from '@/utils/schemaValidation';
 import { ICardItem } from '@/types/types';
+import { getFileLink } from '@/utils/fileLink';
 
 export const ControlFrom: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const formMessageRef = useRef<HTMLDivElement>(null);
   const countries = useSelector(selectCountries);
-
-  const getFileLink = (fileObj: FileList) => {
-    const file = fileObj ? window.URL.createObjectURL(fileObj[0]) : '';
-    return file;
-  };
 
   const {
     register,
@@ -61,9 +57,7 @@ export const ControlFrom: FC = () => {
           {...register('name')}
         />
       </div>
-      <div className="control-form__error">
-        {errors.name && <p>{errors.name.message}</p>}
-      </div>
+      <div className="control-form__error">{errors.name?.message}</div>
       <div className="input__item">
         <label htmlFor="age" className="input__item-title">
           Age:
@@ -75,9 +69,7 @@ export const ControlFrom: FC = () => {
           {...register('age')}
         />
       </div>
-      <div className="control-form__error">
-        {errors.age && <p>{errors.age.message}</p>}
-      </div>
+      <div className="control-form__error">{errors.age?.message}</div>
       <div className="input__item">
         <label htmlFor="email" className="input__item-title">
           Email:
@@ -89,9 +81,7 @@ export const ControlFrom: FC = () => {
           {...register('email')}
         />
       </div>
-      <div className="control-form__error">
-        {errors.email && <p>{errors.email.message}</p>}
-      </div>
+      <div className="control-form__error">{errors.email?.message}</div>
       <div className="input__item">
         <label htmlFor="password" className="input__item-title">
           Password:
@@ -105,9 +95,7 @@ export const ControlFrom: FC = () => {
           {...register('password')}
         />
       </div>
-      <div className="control-form__error">
-        {errors.password && <p>{errors.password.message}</p>}
-      </div>
+      <div className="control-form__error">{errors.password?.message}</div>
       <div className="input__item">
         <label htmlFor="repPassword" className="input__item-title">
           Repeat password:
@@ -120,9 +108,7 @@ export const ControlFrom: FC = () => {
           {...register('passwordRep')}
         />
       </div>
-      <div className="control-form__error">
-        {errors.passwordRep && <p>{errors.passwordRep.message}</p>}
-      </div>
+      <div className="control-form__error">{errors.passwordRep?.message}</div>
       <div className="input__item">
         <label className="input__item-title" htmlFor="country">
           Country:
@@ -141,9 +127,7 @@ export const ControlFrom: FC = () => {
           ))}
         </select>
       </div>
-      <div className="control-form__error">
-        {errors.country && <p>{errors.country.message}</p>}
-      </div>
+      <div className="control-form__error">{errors.country?.message}</div>
       <div className="input__item">
         <span className="input__item-title">Gender:</span>
         <div className="form__gender">
@@ -167,9 +151,7 @@ export const ControlFrom: FC = () => {
           </label>
         </div>
       </div>
-      <div className="control-form__error">
-        {errors.gender && <p>{errors.gender.message}</p>}
-      </div>
+      <div className="control-form__error">{errors.gender?.message}</div>
       <div className="input__item">
         <label htmlFor="file" className="input__item-title">
           Your photo:
@@ -183,18 +165,14 @@ export const ControlFrom: FC = () => {
           {...register('photo')}
         />
       </div>
-      <div className="control-form__error">
-        {errors.photo && <p>{errors.photo.message}</p>}
-      </div>
+      <div className="control-form__error">{errors.photo?.message}</div>
       <div className="input__item">
         <label htmlFor="rules">
           <input type="checkbox" id="rules" {...register('rules')} />I agree to
           the processing of personal data
         </label>
       </div>
-      <div className="control-form__error">
-        {errors.rules && <p>{errors.rules.message}</p>}
-      </div>
+      <div className="control-form__error">{errors.rules?.message}</div>
       <button type="submit" className="submit__button">
         Submit
       </button>

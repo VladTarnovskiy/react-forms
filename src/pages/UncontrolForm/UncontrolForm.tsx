@@ -1,187 +1,99 @@
 import './uncontrolForm.scss';
-import React, { FC, useRef } from 'react';
+import React, { FC, FormEvent, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCard, selectCountries } from '@/store/slices/MainPageSlice';
 import { useNavigate } from 'react-router-dom';
+import { schema } from '@/utils/schemaValidation';
+import { ValidationError } from 'yup';
+import { getFileLink } from '@/utils/fileLink';
+
+export type ErrorObject = {
+  [field: string]: string[];
+};
 
 export const UncontrolFrom: FC = () => {
   const countries = useSelector(selectCountries);
-
+  const [validationErrors, setValidationErrors] = useState<ErrorObject>({});
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
-
   const formRef = useRef<HTMLFormElement>(null);
-
   const formMessageRef = useRef<HTMLDivElement>(null);
-
   const nameRef = useRef<HTMLInputElement>(null);
-
   const countryRef = useRef<HTMLSelectElement>(null);
-
   const ageRef = useRef<HTMLInputElement>(null);
-
   const emailRef = useRef<HTMLInputElement>(null);
-
   const passwordRef = useRef<HTMLInputElement>(null);
-
   const passwordRepRef = useRef<HTMLInputElement>(null);
-
   const maleRef = useRef<HTMLInputElement>(null);
-
   const femaleRef = useRef<HTMLInputElement>(null);
-
   const fileRef = useRef<HTMLInputElement>(null);
-
   const rulesRef = useRef<HTMLInputElement>(null);
 
-  const nameRefMessage = useRef<HTMLDivElement>(null);
-
-  const ageRefMessage = useRef<HTMLDivElement>(null);
-
-  const emailRefMessage = useRef<HTMLDivElement>(null);
-
-  const passwordRefMessage = useRef<HTMLDivElement>(null);
-
-  const countryRefMessage = useRef<HTMLDivElement>(null);
-
-  const passwordRepRefMessage = useRef<HTMLDivElement>(null);
-
-  const genderRefMessage = useRef<HTMLDivElement>(null);
-
-  const fileRefMessage = useRef<HTMLDivElement>(null);
-
-  const rulesRefMessage = useRef<HTMLDivElement>(null);
-
-  const getFileLink = (fileObj: FileList) => {
-    const file = fileObj ? window.URL.createObjectURL(fileObj[0]) : '';
-    return file;
+  const getErrorObject = (err: ValidationError): ErrorObject => {
+    const object: ErrorObject = {};
+    err.inner.forEach((error) => {
+      if (error.path !== undefined) {
+        if (object[error.path] !== undefined) {
+          object[error.path].push(error.errors[0]);
+        } else {
+          object[error.path] = error.errors;
+        }
+      }
+    });
+    return object;
   };
 
-  const submitForm = async (e: React.ChangeEvent<HTMLFormElement>) => {
+  const submitForm = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const nameRefEl = nameRef.current ? nameRef.current?.value : '';
-
-    const ageRefEl = ageRef.current ? ageRef.current?.value : '';
-
-    const emailRefEl = emailRef.current ? emailRef.current?.value : '';
-
-    const passwordRefEl = passwordRef.current ? passwordRef.current?.value : '';
-
-    const countryRefEl = countryRef.current ? countryRef.current?.value : '';
-
-    const passwordRepRefEl = passwordRepRef.current
-      ? passwordRepRef.current?.value
-      : '';
-
-    const maleRefEl = maleRef.current?.value;
-
-    const femaleRefEl = femaleRef.current?.value;
-
-    const fileRefEl = fileRef.current?.files;
-    const imgRef = fileRefEl ? getFileLink(fileRefEl) : '';
-
-    const rulesRefEl = rulesRef.current ? rulesRef.current?.checked : false;
-
-    const sex = maleRef.current?.checked ? maleRefEl : femaleRefEl;
-
-    formMessageRef.current?.classList.add('active');
-    formRef.current?.reset();
-    const formData = {
-      name: nameRefEl,
-      age: Number(ageRefEl),
-      email: emailRefEl,
-      password: passwordRefEl,
-      passwordRep: passwordRepRefEl,
-      country: countryRefEl,
-      gender: sex!,
-      photo: imgRef,
-      rules: rulesRefEl,
-    };
-    dispatch(addCard(formData));
-    setTimeout(() => {
-      formMessageRef.current?.classList.remove('active');
-      navigate('/');
-    }, 3000);
+    const dataValidate = await getFormData();
+    try {
+      await schema.validate(dataValidate, { abortEarly: false });
+      const fileRefEl = fileRef.current?.files;
+      const imgRef = fileRefEl ? getFileLink(fileRefEl) : '';
+      const data = { ...dataValidate, photo: imgRef };
+      formMessageRef.current?.classList.add('active');
+      setTimeout(() => {
+        dispatch(addCard(data));
+        formMessageRef.current?.classList.remove('active');
+        navigate('/');
+      }, 3000);
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        const errors = getErrorObject(err);
+        setValidationErrors(errors);
+      }
+    }
   };
 
-  const checkValidity = () => {
-    const nameRefEl = nameRef.current;
-
-    const ageRefEl = ageRef.current;
-
-    const emailRefEl = emailRef.current;
-
-    const passwordRefEl = passwordRef.current;
-
-    const passwordRepRefEl = passwordRepRef.current;
-
-    const countryRefEl = countryRef.current;
-
-    const maleRefEl = maleRef.current;
-
-    const femaleRefEl = femaleRef.current;
-
-    const fileRefEl = fileRef.current;
-
-    const rulesRefEl = rulesRef.current;
-
-    if (nameRefEl!.validity.valid === false) {
-      nameRefMessage.current?.classList.add('active');
+  const getFormData = async () => {
+    const maleRefEl = maleRef.current?.checked;
+    const femaleRefEl = femaleRef.current?.checked;
+    let sex: string | undefined;
+    if (maleRefEl) {
+      sex = 'male';
+    } else if (femaleRefEl) {
+      sex = 'female';
     } else {
-      nameRefMessage.current?.classList.remove('active');
+      sex = undefined;
+    }
+    let file: FileList | undefined;
+    if (fileRef.current?.files && fileRef.current.files[0]) {
+      file = fileRef.current.files;
+    } else {
+      file = undefined;
     }
 
-    if (ageRefEl!.validity.valid === false) {
-      ageRefMessage.current?.classList.add('active');
-    } else {
-      ageRefMessage.current?.classList.remove('active');
-    }
-
-    if (emailRefEl!.validity.valid === false) {
-      emailRefMessage.current?.classList.add('active');
-    } else {
-      emailRefMessage.current?.classList.remove('active');
-    }
-
-    if (passwordRefEl!.validity.valid === false) {
-      passwordRefMessage.current?.classList.add('active');
-    } else {
-      passwordRefMessage.current?.classList.remove('active');
-    }
-
-    if (passwordRepRefEl!.validity.valid === false) {
-      passwordRepRefMessage.current?.classList.add('active');
-    } else {
-      passwordRepRefMessage.current?.classList.remove('active');
-    }
-
-    if (countryRefEl!.validity.valid === false) {
-      countryRefMessage.current?.classList.add('active');
-    } else {
-      countryRefMessage.current?.classList.remove('active');
-    }
-
-    if (
-      maleRefEl!.validity.valid === false &&
-      femaleRefEl!.validity.valid === false
-    ) {
-      genderRefMessage.current?.classList.add('active');
-    } else {
-      genderRefMessage.current?.classList.remove('active');
-    }
-
-    if (fileRefEl!.validity.valid === false) {
-      fileRefMessage.current?.classList.add('active');
-    } else {
-      fileRefMessage.current?.classList.remove('active');
-    }
-
-    if (rulesRefEl!.checked === false) {
-      rulesRefMessage.current?.classList.add('active');
-    } else {
-      rulesRefMessage.current?.classList.remove('active');
-    }
+    return {
+      name: nameRef.current?.value,
+      age: ageRef.current?.value,
+      email: emailRef.current?.value,
+      password: passwordRef.current?.value,
+      passwordRep: passwordRepRef.current?.value,
+      gender: sex,
+      rules: rulesRef.current?.checked,
+      photo: file,
+      country: countryRef.current?.value,
+    };
   };
 
   return (
@@ -189,7 +101,10 @@ export const UncontrolFrom: FC = () => {
       className="form"
       name="PersonalDataForm"
       ref={formRef}
-      onSubmit={submitForm}
+      onSubmit={(e) => {
+        e.preventDefault();
+        submitForm(e);
+      }}
     >
       <div className="form__saved" ref={formMessageRef}>
         <div className="form__saved-message">Data saved!</div>
@@ -205,14 +120,9 @@ export const UncontrolFrom: FC = () => {
           placeholder="Enter name"
           name="name"
           ref={nameRef}
-          pattern="[A-Z][a-z]*"
-          required
-          minLength={3}
         />
       </div>
-      <div className="form__error" ref={nameRefMessage}>
-        the first name should start from capital letter, min length 3
-      </div>
+      <div className="form__error">{validationErrors.name?.[0]}</div>
       <div className="input__item">
         <label htmlFor="age" className="input__item-title">
           Age:
@@ -222,13 +132,10 @@ export const UncontrolFrom: FC = () => {
           id="age"
           placeholder="Enter age"
           name="age"
-          required
           ref={ageRef}
         />
       </div>
-      <div className="form__error" ref={ageRefMessage}>
-        enter your age
-      </div>
+      <div className="form__error">{validationErrors.age?.[0]}</div>
       <div className="input__item">
         <label htmlFor="email" className="input__item-title">
           Email:
@@ -238,13 +145,10 @@ export const UncontrolFrom: FC = () => {
           id="email"
           placeholder="Enter email"
           name="email"
-          required
           ref={emailRef}
         />
       </div>
-      <div className="form__error" ref={emailRefMessage}>
-        enter your email
-      </div>
+      <div className="form__error">{validationErrors.email?.[0]}</div>
       <div className="input__item">
         <label htmlFor="password" className="input__item-title">
           Password:
@@ -256,13 +160,10 @@ export const UncontrolFrom: FC = () => {
           className="form__password"
           name="password"
           autoComplete="off"
-          required
           ref={passwordRef}
         />
       </div>
-      <div className="form__error" ref={passwordRefMessage}>
-        passwords should match
-      </div>
+      <div className="form__error">{validationErrors.password?.[0]}</div>
       <div className="input__item">
         <label htmlFor="repPassword" className="input__item-title">
           Repeat password:
@@ -273,13 +174,10 @@ export const UncontrolFrom: FC = () => {
           placeholder="Repeat password"
           name="password"
           autoComplete="off"
-          required
           ref={passwordRepRef}
         />
       </div>
-      <div className="form__error" ref={passwordRepRefMessage}>
-        enter your password
-      </div>
+      <div className="form__error">{validationErrors.passwordRep?.[0]}</div>
       <div className="input__item">
         <label className="input__item-title" htmlFor="country">
           Country:
@@ -297,9 +195,7 @@ export const UncontrolFrom: FC = () => {
           ))}
         </select>
       </div>
-      <div className="form__error" ref={countryRefMessage}>
-        choose country
-      </div>
+      <div className="form__error">{validationErrors.country?.[0]}</div>
       <div className="input__item">
         <span className="input__item-title">Gender:</span>
         <div className="form__gender">
@@ -309,7 +205,6 @@ export const UncontrolFrom: FC = () => {
               id="male"
               name="gender"
               value="male"
-              required
               ref={maleRef}
             />{' '}
             male
@@ -320,16 +215,13 @@ export const UncontrolFrom: FC = () => {
               id="female"
               name="gender"
               value="female"
-              required
               ref={femaleRef}
             />{' '}
             female
           </label>
         </div>
       </div>
-      <div className="form__error" ref={genderRefMessage}>
-        choose gender
-      </div>
+      <div className="form__error">{validationErrors.gender?.[0]}</div>
       <div className="input__item">
         <label htmlFor="file" className="input__item-title">
           Your photo:
@@ -339,31 +231,24 @@ export const UncontrolFrom: FC = () => {
           id="file"
           placeholder="Choose file"
           className="form__file"
-          required
-          accept="image/*"
           ref={fileRef}
         />
       </div>
-      <div className="form__error" ref={fileRefMessage}>
-        choose your photo
-      </div>
+      <div className="form__error">{validationErrors.photo?.[0]}</div>
       <div className="input__item">
         <label htmlFor="rules">
           <input
             type="checkbox"
             id="rules"
             name="rules"
-            required
             value="motorcycle"
             ref={rulesRef}
           />{' '}
           I agree to the processing of personal data
         </label>
       </div>
-      <div className="form__error" ref={rulesRefMessage}>
-        to continue agree to the processing of your data
-      </div>
-      <button type="submit" className="submit__button" onClick={checkValidity}>
+      <div className="form__error">{validationErrors.rules?.[0]}</div>
+      <button type="submit" className="submit__button">
         Submit
       </button>
     </form>

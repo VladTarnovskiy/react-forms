@@ -23,9 +23,17 @@ export const schema = object().shape({
     .oneOf([ref('password')], "passwords don't match"),
   gender: string().required(),
   country: string().required(),
-  photo: mixed<FileList>().test(
-    'Image is required',
-    (value) => !!(value as FileList)[0]
-  ),
-  rules: boolean().oneOf([true], 'This field is required'),
+  photo: mixed<FileList>()
+    .test('is-valid-type', 'photo is required field', (value) =>
+      value && value[0] ? true : false
+    )
+    .test('is-valid-type', 'Only .png and .jpg(.jpeg) files', (value) =>
+      value && value[0]
+        ? ['image/png', 'image/jpeg'].includes(value[0].type)
+        : false
+    )
+    .test('is-valid-size', 'Max allowed size is 100KB', (value) =>
+      value && value[0] ? value[0].size <= 102400 : false
+    ),
+  rules: boolean().oneOf([true], 'this field is required'),
 });
