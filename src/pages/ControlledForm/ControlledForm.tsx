@@ -1,4 +1,4 @@
-import './controlForm.scss';
+import './controlledForm.scss';
 import { FC, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCard, selectCountries } from '@/store/slices/MainPageSlice';
@@ -8,8 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { schema } from '@/utils/schemaValidation';
 import { ICardItem } from '@/types/types';
 import { getFileLink } from '@/utils/fileLink';
+import { v4 as uuidv4 } from 'uuid';
 
-export const ControlFrom: FC = () => {
+export const ControlledForm: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const formMessageRef = useRef<HTMLDivElement>(null);
@@ -25,7 +26,8 @@ export const ControlFrom: FC = () => {
   const onSubmit = (data: ICardItem) => {
     const formData = {
       ...data,
-      photo: getFileLink(data.photo!),
+      id: uuidv4(),
+      file: getFileLink(data.file!),
     };
     formMessageRef.current?.classList.add('active');
     setTimeout(() => {
@@ -97,18 +99,20 @@ export const ControlFrom: FC = () => {
       </div>
       <div className="control-form__error">{errors.password?.message}</div>
       <div className="input__item">
-        <label htmlFor="repPassword" className="input__item-title">
-          Repeat password:
+        <label htmlFor="confirmedPassword" className="input__item-title">
+          Confirm password:
         </label>
         <input
           type="password"
-          id="repPassword"
+          id="confirmedPassword"
           placeholder="Repeat password"
           autoComplete="off"
-          {...register('passwordRep')}
+          {...register('confirmedPassword')}
         />
       </div>
-      <div className="control-form__error">{errors.passwordRep?.message}</div>
+      <div className="control-form__error">
+        {errors.confirmedPassword?.message}
+      </div>
       <div className="input__item">
         <label className="input__item-title" htmlFor="country">
           Country:
@@ -162,10 +166,10 @@ export const ControlFrom: FC = () => {
           accept="image/png, image/jpeg"
           placeholder="Choose file"
           className="form__file"
-          {...register('photo')}
+          {...register('file')}
         />
       </div>
-      <div className="control-form__error">{errors.photo?.message}</div>
+      <div className="control-form__error">{errors.file?.message}</div>
       <div className="input__item">
         <label htmlFor="rules">
           <input type="checkbox" id="rules" {...register('rules')} />I agree to

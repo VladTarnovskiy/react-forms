@@ -1,12 +1,13 @@
 export interface ICardItemForm {
+  id: string;
   name: string;
   country: string;
   age: number;
   email: string;
   password: string;
-  passwordRep: string;
+  confirmedPassword: string;
   gender: string;
-  photo: string;
+  file: string;
   rules: boolean;
 }
 
@@ -16,8 +17,8 @@ export interface ICardItem {
   age: number;
   email: string;
   password: string;
-  passwordRep: string;
+  confirmedPassword: string;
   gender: string;
-  photo?: FileList | undefined;
+  file?: FileList | undefined;
   rules?: boolean | undefined;
 }

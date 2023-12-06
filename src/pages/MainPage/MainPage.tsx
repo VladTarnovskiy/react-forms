@@ -12,7 +12,7 @@ export const MainPage: FC = () => {
         <div className="content__list flex-grow">
           <div className="cards__container p-5">
             {cards.length ? (
-              cards.map((card) => <Card cardData={card} key={card.password} />)
+              cards.map((card) => <Card cardData={card} key={card.id} />)
             ) : (
               <div className="mt-16 text-2xl">No Cards.</div>
             )}

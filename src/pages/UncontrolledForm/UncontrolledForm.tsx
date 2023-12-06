@@ -1,4 +1,4 @@
-import './uncontrolForm.scss';
+import './uncontrolledForm.scss';
 import React, { FC, FormEvent, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCard, selectCountries } from '@/store/slices/MainPageSlice';
@@ -7,8 +7,9 @@ import { schema } from '@/utils/schemaValidation';
 import { ValidationError } from 'yup';
 import { getFileLink } from '@/utils/fileLink';
 import { IError, getErrorObject } from '@/utils/errorObject';
+import { v4 as uuidv4 } from 'uuid';
 
-export const UncontrolFrom: FC = () => {
+export const UncontrolledFrom: FC = () => {
   const countries = useSelector(selectCountries);
   const [validationErrors, setValidationErrors] = useState<IError>({});
   const dispatch = useDispatch();
@@ -20,7 +21,7 @@ export const UncontrolFrom: FC = () => {
   const ageRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const passwordRepRef = useRef<HTMLInputElement>(null);
+  const passwordConfirmRef = useRef<HTMLInputElement>(null);
   const maleRef = useRef<HTMLInputElement>(null);
   const femaleRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -33,7 +34,7 @@ export const UncontrolFrom: FC = () => {
       await schema.validate(dataValidate, { abortEarly: false });
       const fileRefEl = fileRef.current?.files;
       const imgRef = fileRefEl ? getFileLink(fileRefEl) : '';
-      const data = { ...dataValidate, photo: imgRef };
+      const data = { ...dataValidate, id: uuidv4(), file: imgRef };
       formMessageRef.current?.classList.add('active');
       setTimeout(() => {
         dispatch(addCard(data));
@@ -71,10 +72,10 @@ export const UncontrolFrom: FC = () => {
       age: ageRef.current?.value,
       email: emailRef.current?.value,
       password: passwordRef.current?.value,
-      passwordRep: passwordRepRef.current?.value,
+      confirmedPassword: passwordConfirmRef.current?.value,
       gender: sex,
       rules: rulesRef.current?.checked,
-      photo: file,
+      file: file,
       country: countryRef.current?.value,
     };
   };
@@ -146,18 +147,20 @@ export const UncontrolFrom: FC = () => {
       <div className="form__error">{validationErrors.password?.[0]}</div>
       <div className="input__item">
         <label htmlFor="repPassword" className="input__item-title">
-          Repeat password:
+          Confirm password:
         </label>
         <input
           type="password"
           id="repPassword"
           placeholder="Repeat password"
-          name="password"
+          name="confirmedPassword"
           autoComplete="off"
-          ref={passwordRepRef}
+          ref={passwordConfirmRef}
         />
       </div>
-      <div className="form__error">{validationErrors.passwordRep?.[0]}</div>
+      <div className="form__error">
+        {validationErrors.confirmedPassword?.[0]}
+      </div>
       <div className="input__item">
         <label className="input__item-title" htmlFor="country">
           Country:
@@ -214,7 +217,7 @@ export const UncontrolFrom: FC = () => {
           ref={fileRef}
         />
       </div>
-      <div className="form__error">{validationErrors.photo?.[0]}</div>
+      <div className="form__error">{validationErrors.file?.[0]}</div>
       <div className="input__item">
         <label htmlFor="rules">
           <input

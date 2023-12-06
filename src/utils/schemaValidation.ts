@@ -18,12 +18,12 @@ export const schema = object().shape({
     .matches(/[A-Z]/, 'password should contains uppercase letter')
     .matches(/[0-9]/, 'password should contains number')
     .matches(/[!@#$&*]/, 'password should contains one special character'),
-  passwordRep: string()
+  confirmedPassword: string()
     .required()
     .oneOf([ref('password')], "passwords don't match"),
   gender: string().required(),
   country: string().required(),
-  photo: mixed<FileList>()
+  file: mixed<FileList>()
     .test('is-valid-type', 'photo is required field', (value) =>
       value && value[0] ? true : false
     )

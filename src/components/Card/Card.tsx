@@ -6,14 +6,14 @@ interface MyProps {
 }
 
 export const Card: FC<MyProps> = ({ cardData }) => {
-  const { age, email, gender, name, password, photo, country } = cardData;
+  const { age, email, gender, name, password, file, country } = cardData;
 
   return (
     <div
       className="card flex flex-col p-4 text-white text-lg justify-center items-center rounded-xl bg-zinc-700 shadow-lg max-w-[300px]"
       data-testid="card"
     >
-      <img src={photo} alt="episode__img" className="h-[180px] rounded-lg" />
+      <img src={file} alt="episode__img" className="h-[180px] rounded-lg" />
 
       <div className="card_description flex-col">
         <div className="flex justify-between des__item flex-wrap">

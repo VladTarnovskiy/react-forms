@@ -3,8 +3,8 @@ import { MainPage } from '@/pages/MainPage/MainPage';
 import { NotFoundPage } from '../pages/NotFoundPage/NotFoundPage';
 import { RouterError } from '../components/RouterError/RouterError';
 import { App } from '../App';
-import { UncontrolFrom } from '@/pages/UncontrolForm/UncontrolForm';
-import { ControlFrom } from '@/pages/ControlForm/ControlForm';
+import { UncontrolledFrom } from '@/pages/UncontrolledForm/UncontrolledForm';
+import { ControlledForm } from '@/pages/ControlledForm/ControlledForm';
 
 export const router = createBrowserRouter([
   {
@@ -16,12 +16,12 @@ export const router = createBrowserRouter([
         element: <MainPage />,
       },
       {
-        path: '/form/uncontrol',
-        element: <UncontrolFrom />,
+        path: '/form/uncontrolled',
+        element: <UncontrolledFrom />,
       },
       {
-        path: '/form/control',
-        element: <ControlFrom />,
+        path: '/form/controlled',
+        element: <ControlledForm />,
       },
     ],
   },

@@ -7,14 +7,14 @@ export const Header: FC = () => {
       <Link to="/">
         <button className="text-white rounded bg-blue-900 p-2">MainPage</button>
       </Link>
-      <Link to="form/control">
+      <Link to="form/controlled">
         <button className="text-white rounded bg-blue-900 p-2">
-          ControlFrom
+          ControlledForm
         </button>
       </Link>
-      <Link to="form/uncontrol">
+      <Link to="form/uncontrolled">
         <button className="text-white rounded bg-blue-900 p-2">
-          UnControlFrom
+          UncontrolledFrom
         </button>
       </Link>
     </header>
